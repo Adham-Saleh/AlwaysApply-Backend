@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     
     'employer',
     'rest_framework',
+    'user',
+    'rest_framework.authtoken',
     'alwaysApply.apps.AlwaysapplyConfig'
 ]
 
@@ -125,3 +127,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Session
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
