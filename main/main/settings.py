@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     ## Apps
     'employer',
     'users',
+    'alwayaApply',
 ]
 
 MIDDLEWARE = [
