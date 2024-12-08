@@ -24,6 +24,35 @@ class jobView(viewsets.ViewSet):
             return Response(serializedData.data,  status=status.HTTP_201_CREATED)
         return Response(serializedData.errors,  status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, pk):
+        try:
+            job = Job.objects.get(id=pk)
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = JobSerializer(job, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self,request,pk):
+        try:
+            job = Job.objects.get(id=pk).delete()
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message":"success"})
+    
+
+    def retrieve(self,request,pk):
+        try:
+            job = Job.objects.get(id=pk)
+            serializedData = JobSerializer(job)
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializedData.data)
+    
+
 class ApplicationView(viewsets.ViewSet):
     
     def list(self, request, pk=None):
@@ -48,4 +77,5 @@ class ApplicationView(viewsets.ViewSet):
             serializedData.save()
             return Response(serializedData.data,  status=status.HTTP_201_CREATED)
         return Response(serializedData.errors,  status=status.HTTP_400_BAD_REQUEST)
+
 
