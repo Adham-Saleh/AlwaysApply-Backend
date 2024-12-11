@@ -4,6 +4,7 @@ from .models import Job, Application
 from .serializers import JobSerializer, ApplicationSerializer 
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 from users.models import User
 
 

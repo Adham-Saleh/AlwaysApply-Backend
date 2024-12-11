@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer
@@ -7,6 +8,8 @@ import jwt, datetime
 
 # Create your views here.
 class RegisterView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -46,17 +49,27 @@ class LoginView(APIView):
 class UserView(APIView):
 
     def get(self, request):
+        # Get the JWT token from cookies
         token = request.COOKIES.get('jwt')
         
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
 
         try:
+            # Decode the token
             payload = jwt.decode(token, 'madrid', algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated!')
+            raise AuthenticationFailed('Unauthenticated! Token has expired.')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Unauthenticated! Invalid token.')
 
+        # Fetch user based on the ID from the token
         user = User.objects.filter(id=payload['id']).first()
+
+        if not user:
+            raise AuthenticationFailed('User not found')
+
+        # Serialize the user data
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
