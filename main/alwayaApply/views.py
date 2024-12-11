@@ -4,26 +4,29 @@ from .models import Job, Application
 from .serializers import JobSerializer, ApplicationSerializer 
 from rest_framework import viewsets
 from rest_framework import status
-from rest_framework.pagination import LimitOffsetPagination
 from users.models import User
+from rest_framework.pagination import PageNumberPagination
 
-
-# Create your views here.
+class JobPagination(PageNumberPagination):
+    page_size = 3 
+    page_size_query_param = 'size' 
+    max_page_size = 100
 
 class jobView(viewsets.ViewSet):
-    
     queryset = Job.objects.all()
-    
+
     def list(self, request):
-        serializedData = JobSerializer(self.queryset, many=True)
-        return Response(serializedData.data)
+        paginator = JobPagination()
+        paginated_queryset = paginator.paginate_queryset(self.queryset, request)
+        serializedData = JobSerializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializedData.data)
     
     def create(self, request):
         serializedData = JobSerializer(data=request.data)
         if serializedData.is_valid():
             serializedData.save()
-            return Response(serializedData.data,  status=status.HTTP_201_CREATED)
-        return Response(serializedData.errors,  status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializedData.data, status=status.HTTP_201_CREATED)
+        return Response(serializedData.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk):
         try:
@@ -37,22 +40,22 @@ class jobView(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def destroy(self,request,pk):
+    def destroy(self, request, pk):
         try:
-            job = Job.objects.get(id=pk).delete()
+            job = Job.objects.get(id=pk)
+            job.delete()
         except Job.DoesNotExist:
             return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"message":"success"})
+        return Response({"message": "success"})
     
-
-    def retrieve(self,request,pk):
+    def retrieve(self, request, pk):
         try:
             job = Job.objects.get(id=pk)
             serializedData = JobSerializer(job)
         except Job.DoesNotExist:
             return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializedData.data)
-    
+
 
 class ApplicationView(viewsets.ViewSet):
     
