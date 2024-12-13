@@ -7,16 +7,18 @@ from users.models import User
 
 class Job(models.Model):
     
-    levelsEnum = [('entry', 'ENTRY'), ('intermediate', 'INTERMEDIATE'), ('advanced', 'ADVANCED')]
-    workModeEnum = [('full', 'FULL TIME'), ('part', 'PART TIME')]
+    levelsEnum = [('ENTRY', 'ENTRY'), ('INTERMEDIATE', 'INTERMEDIATE'), ('ADVANCED', 'ADVANCED')]
+    workModeEnum = [('FULL TIME', 'FULL TIME'), ('PART TIME', 'PART TIME')]
     
     title = models.CharField(max_length=200)
     description = models.TextField()
-    level = models.CharField(max_length=200, choices=levelsEnum, default='entry')
-    workingMode = models.CharField(max_length=200, choices=workModeEnum, default='part')
+    level = models.CharField(max_length=200, choices=levelsEnum, default='ENTRY')
+    workingMode = models.CharField(max_length=200, choices=workModeEnum, default='PART TIME')
     isActive = models.BooleanField()
     # requirements = ArrayField(models.CharField(max_length=200),blank=True,default=list)
     createdAt = models.DateTimeField(auto_now_add=True)
+    price=models.FloatField(default=2000.0)
+    location=models.CharField(max_length=255,default="EGYPT")
     user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'company'})
     
     def __str__(self):
@@ -28,8 +30,7 @@ class Application(models.Model):
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     freelancer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'freelancer'}, related_name='applications_as_freelancer')
-    
-    # Company field, referencing users with the 'company' role
+
     company = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'company'}, default=1, related_name='applications_as_company')
     proposal = models.TextField()
     price = models.IntegerField()
