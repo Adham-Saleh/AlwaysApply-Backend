@@ -39,13 +39,17 @@ class jobView(viewsets.ViewSet):
 
     @api_view(['GET'])
     def jobs_by_company(request, company_id):
-    # Filter jobs by the company ID
-        jobs = Job.objects.filter(user_id=company_id)  # Assuming 'user' is the ForeignKey to User (company)
-        
-        # Serialize the jobs
+        jobs = Job.objects.filter(user_id=company_id)
         serialized_jobs = JobSerializer(jobs, many=True)
         
         return Response(serialized_jobs.data, status=status.HTTP_200_OK)
+    
+    @api_view(['GET'])
+    def job_titles(request):
+        job_titles = Job.objects.values_list('title', flat=True)
+        job_titles_list = list(job_titles)
+        
+        return Response({"job_titles": job_titles_list}, status=status.HTTP_200_OK)
 
     def create(self, request):
         user_id = request.data.get('user')
