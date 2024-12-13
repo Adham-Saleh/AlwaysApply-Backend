@@ -10,7 +10,6 @@ from rest_framework.exceptions import ValidationError
 
 # Create your views here.
 class RegisterView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -63,7 +62,7 @@ class UserView(APIView):
 
     def get(self, request):
         # Get the JWT token from cookies
-        token = request.COOKIES.get('jwt')
+        token = request.data.get('jwt')
         
         if not token:
             raise AuthenticationFailed('Unauthenticated!')

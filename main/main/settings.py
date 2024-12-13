@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'corsheaders',
+    'django_filters',
     ## Apps
     'employer',
     'users',
@@ -98,7 +99,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 # Internationalization
@@ -132,6 +134,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 
+# settings.py
 import os
+
+# URL and path to media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
