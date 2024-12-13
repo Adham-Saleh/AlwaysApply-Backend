@@ -18,7 +18,6 @@ class Job(models.Model):
     # requirements = ArrayField(models.CharField(max_length=200),blank=True,default=list)
     createdAt = models.DateTimeField(auto_now_add=True)
     price=models.FloatField(default=2000.0)
-    location=models.CharField(max_length=255,default="EGYPT")
     user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'company'})
     location = models.CharField(max_length=200, default='Egypt')
     
