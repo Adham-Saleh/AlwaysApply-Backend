@@ -8,7 +8,6 @@ import jwt, datetime
 
 # Create your views here.
 class RegisterView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
