@@ -5,6 +5,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer
 from .models import User
 import jwt, datetime
+from rest_framework.exceptions import ValidationError
+
 
 # Create your views here.
 class RegisterView(APIView):
@@ -12,10 +14,13 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'user':serializer.data, 'message': 'Logged in successfully', 'success': True})
+        except ValidationError as err:
+            errorMessage = err.detail
+            return Response({'success': False, 'message': errorMessage})
 class LoginView(APIView):
     def post(self, request):
         email = request.data['email']
@@ -24,10 +29,10 @@ class LoginView(APIView):
         user = User.objects.filter(email=email).first()
         
         if user is None:
-            raise AuthenticationFailed('User not found')
+            return Response({'success': False, 'message': 'User not found'})
         
         if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password')
+            return Response({'success': False, 'message': 'Wrong password'})
 
         payload = {
             'id': user.id,
@@ -39,13 +44,17 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=True)
+        response.set_cookie(key='jwt', value=token, httponly=True, samesite=None, domain="http://localhost:3000")
         response.data = {
-            'id': user.id,
-            'name': user.name,
-            'email': user.email,
-            'role': user.role,
-            'jwt': token
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'role': user.role,
+                'jwt': token,
+            },
+            'success': True,
+            'message': 'Logged in successfully'
         }
         return response
 
@@ -82,6 +91,7 @@ class LogoutView(APIView):
         response = Response()
         response.delete_cookie('jwt')
         response.data = {
+            'success': True,
             'message': 'success'
         }
         return response
