@@ -136,4 +136,28 @@ class Offer(models.Model):
 
     def __str__(self):
         return f"Offer for {self.job.title} is ({'Done' if self.isDone else 'Pending'})"
-    
+
+
+
+# Job (company)
+    # createdAt
+    # Company
+        # logo
+        # name
+        # location
+    # role
+    # description
+    # level
+    # working mode
+    # isActive 
+
+
+# Apply (freelancer)
+    # user
+    # company (صالحب)
+    # proposal
+    # duration
+    # price
+    # status: [pending, accepted, rejected]
+
+
