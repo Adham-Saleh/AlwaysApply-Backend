@@ -11,6 +11,7 @@ urlpatterns = [
     path('jobs/company/<int:company_id>/', views.jobView.jobs_by_company, name='jobs-by-company'),
     path('dashboard/', views.ApplicationDashboard.as_view(), name='application-dashboard'),
     path('jobs/titles/', views.jobView.job_titles, name='job-titles'),
+    path('companies/<int:company_id>/jobs/', views.JobsByCompanyView.as_view(), name='jobs-by-company'),
     
 ] + router.urls
 
