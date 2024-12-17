@@ -33,7 +33,7 @@ class jobView(viewsets.ViewSet):
         paginator = JobPagination()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         serializedData = JobSerializer(paginated_queryset, many=True)
-        return paginator.get_paginated_response(serializedData.data)
+        return paginator.get_paginated_response({'jobs': serializedData.data, 'totalCount': queryset.count()})
 
 
 
