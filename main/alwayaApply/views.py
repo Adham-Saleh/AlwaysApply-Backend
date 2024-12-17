@@ -120,7 +120,15 @@ class ApplicationView(viewsets.ViewSet):
             return Response(serializedData.data,  status=status.HTTP_201_CREATED)
         return Response(serializedData.errors,  status=status.HTTP_400_BAD_REQUEST)
 
-
+class JobsByCompanyView(APIView):
+    def get(self, request, company_id):
+        try:
+            company = User.objects.get(id=company_id, role='company')
+            jobs = Job.objects.filter(user=company)
+            serializer = JobSerializer(jobs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Company not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ApplicationPagination(PageNumberPagination):

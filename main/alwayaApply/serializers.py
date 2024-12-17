@@ -20,16 +20,35 @@ class JobSerializer(serializers.ModelSerializer):
             "role": user.role
         }
 
-
-
 class ApplicationSerializer(serializers.ModelSerializer):
     job = serializers.PrimaryKeyRelatedField(queryset=Job.objects.all())
     freelancer = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(role='freelancer'))
     company = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(role='company'))
 
+    freelancer_details = serializers.SerializerMethodField()
+    company_details = serializers.SerializerMethodField()
+
     class Meta:
         model = Application
-        fields = '__all__'
+        fields = ['id', 'job', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt']
+    
+    def get_freelancer_details(self, obj):
+        freelancer = obj.freelancer
+        return {
+            "id": freelancer.id,
+            "name": freelancer.name,
+            "email": freelancer.email,
+            "role": freelancer.role
+        }
+    
+    def get_company_details(self, obj):
+        company = obj.company
+        return {
+            "id": company.id,
+            "name": company.name,
+            "email": company.email,
+            "role": company.role
+        }
     
     def create(self, validated_data):
         job = validated_data.get('job')
@@ -50,13 +69,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
         )
         return application
 
-    
-from rest_framework import serializers
-from .models import Application
-from users.serializers import UserSerializer
 
 class DashboardSerializer(serializers.ModelSerializer):
-    job = JobSerializer(read_only=True)  # Include full job details
+    job = JobSerializer(read_only=True)
     freelancer_name = serializers.CharField(source="freelancer.name", read_only=True)
 
     class Meta:
