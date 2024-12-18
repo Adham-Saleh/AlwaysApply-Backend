@@ -50,6 +50,7 @@ class LoginView(APIView):
                 'name': user.name,
                 'email': user.email,
                 'role': user.role,
+                'rating':user.rating,
                 'jwt': token,
             },
             'success': True,

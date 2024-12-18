@@ -30,7 +30,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ['id', 'job', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt']
+        fields = ['id', 'job', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt','due_to']
     
     def get_freelancer_details(self, obj):
         freelancer = obj.freelancer
@@ -65,7 +65,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
             proposal=validated_data.get('proposal'),
             price=validated_data.get('price'),
             duration=validated_data.get('duration'),
-            status=validated_data.get('status', 'pending')
+            status=validated_data.get('status', 'pending'),
+            due_to=validated_data.get('due_to')
         )
         return application
 

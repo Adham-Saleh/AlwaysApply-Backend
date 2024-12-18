@@ -42,6 +42,7 @@ class User(AbstractUser):
     username = None
     role = models.CharField(max_length=200, null=False, default='freelancer', choices=roleEnum)  # Default value set
     image = models.ImageField(upload_to='UserImages/', blank=True, null=True, default=None)
+    rating=models.IntegerField(default=0)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
