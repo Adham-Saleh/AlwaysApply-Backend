@@ -37,16 +37,9 @@ class jobView(viewsets.ViewSet):
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         serializedData = JobSerializer(paginated_queryset, many=True)
         return paginator.get_paginated_response({'jobs': serializedData.data, 'totalCount': queryset.count()})
-
-
-
-    @api_view(['GET'])
-    def jobs_by_company(request, company_id):
-        jobs = Job.objects.filter(user_id=company_id)
-        serialized_jobs = JobSerializer(jobs, many=True)
-        
-        return Response(serialized_jobs.data, status=status.HTTP_200_OK)
     
+    
+
     @api_view(['GET'])
     def job_titles(request):
         job_titles = Job.objects.values_list('title', flat=True)
@@ -108,6 +101,7 @@ class ApplicationView(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ApplicationFilter
 
+    
     def list(self, request, pk=None):
         try:
             user = User.objects.get(id=pk)
@@ -138,38 +132,68 @@ class ApplicationView(viewsets.ViewSet):
         return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    def retrieve(self, request, pk=None):
+        try:
+            application = Application.objects.get(id=pk)
+        except Application.DoesNotExist:
+            return Response({"error": "Application not found"}, status=404)
+
+        serialized_data = ApplicationSerializer(application)
+        return Response(serialized_data.data)
+    
+    def destroy(self, request, pk):
+        try:
+            application = Application.objects.get(id=pk)
+            application.delete()
+        except Application.DoesNotExist:
+            return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "success"})
+
+
+
 class JobsByCompanyView(APIView):
+    queryset = Job.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = JobFilter
+
     def get(self, request, company_id):
         try:
             company = User.objects.get(id=company_id, role='company')
-            jobs = Job.objects.filter(user=company)
-            serializer = JobSerializer(jobs, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            queryset = Job.objects.filter(user=company)
+
+            filter_backend = DjangoFilterBackend()
+            queryset = filter_backend.filter_queryset(request, queryset, self)
+
+            paginator = JobPagination()
+            paginated_queryset = paginator.paginate_queryset(queryset, request)
+
+            serialized_jobs = JobSerializer(paginated_queryset, many=True)
+
+            return paginator.get_paginated_response({
+                'jobs': serialized_jobs.data,
+                'totalCount': queryset.count()
+            })
+
         except User.DoesNotExist:
             return Response({"error": "Company not found."}, status=status.HTTP_404_NOT_FOUND)
-
 
 class ApplicationDashboard(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-
-        # Filter applications based on user role
         if user.role == 'freelancer':
             applications = Application.objects.filter(freelancer=user)
+
         elif user.role == 'company':
             applications = Application.objects.filter(company=user)
+
         else:
             return Response({"error": "User role is not valid for dashboard access."}, 
                             status=status.HTTP_403_FORBIDDEN)
-
-        # Apply pagination
+        
         paginator = ApplicationPagination()
         paginated_queryset = paginator.paginate_queryset(applications, request)
         
-        # Use a dedicated serializer
         serializer = DashboardSerializer(paginated_queryset, many=True)
-
-        # Return paginated response
         return paginator.get_paginated_response(serializer.data)

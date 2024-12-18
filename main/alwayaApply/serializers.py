@@ -27,10 +27,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     freelancer_details = serializers.SerializerMethodField()
     company_details = serializers.SerializerMethodField()
+    job_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Application
-        fields = ['id', 'job', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt','due_to']
+        fields = ['id', 'job','job_details', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt','due_to']
     
     def get_freelancer_details(self, obj):
         freelancer = obj.freelancer
@@ -38,7 +39,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "id": freelancer.id,
             "name": freelancer.name,
             "email": freelancer.email,
-            "role": freelancer.role
+            "role": freelancer.role,
+            "rating":freelancer.rating
         }
     
     def get_company_details(self, obj):
@@ -48,6 +50,19 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "name": company.name,
             "email": company.email,
             "role": company.role
+        }
+    def get_job_details(self, obj):
+        job = obj.job
+        return {
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "level": job.level,
+            "workingMode":job.workingMode,
+            "price":job.price,
+            "isActive":job.isActive,
+            "createdAt":job.createdAt,
+            "location":job.location
         }
     
     def create(self, validated_data):

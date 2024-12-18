@@ -15,24 +15,16 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        """
-        Create and return a superuser with an email and password.
-        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
-        # Since we are not using 'username', ensure it is not included
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-
-        # Create the superuser (without requiring a username)
         return self.create_user(email, password, **extra_fields)
 
 
 
-# Create your models here.
 class User(AbstractUser):
     roleEnum = [('company', 'COMPANY'), ('freelancer', 'FREELANCER')]
 
