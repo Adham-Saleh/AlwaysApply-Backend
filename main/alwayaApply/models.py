@@ -37,7 +37,7 @@ class Application(models.Model):
     status = models.CharField(max_length=200, choices=statusEnum, default='pending')
     duration = models.IntegerField()
     createdAt = models.DateTimeField(auto_now_add=True)
-    due_to = models.DateField(auto_now_add=True)
+    due_to = models.DateField(default="18-12-2024")
 
     def __str__(self):
         return self.proposal
