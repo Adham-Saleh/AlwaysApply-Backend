@@ -130,6 +130,18 @@ class ApplicationView(viewsets.ViewSet):
             serialized_data.save()
             return Response(serialized_data.data, status=status.HTTP_201_CREATED)
         return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, pk):
+        try:
+            application = Application.objects.get(id=pk)
+        except Application.DoesNotExist:
+            return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ApplicationSerializer(application, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     def retrieve(self, request, pk=None):
@@ -194,6 +206,6 @@ class ApplicationDashboard(APIView):
         
         paginator = ApplicationPagination()
         paginated_queryset = paginator.paginate_queryset(applications, request)
-        
+
         serializer = DashboardSerializer(paginated_queryset, many=True)
         return paginator.get_paginated_response(serializer.data)
