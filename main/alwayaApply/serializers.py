@@ -23,7 +23,7 @@ class JobSerializer(serializers.ModelSerializer):
 class ApplicationSerializer(serializers.ModelSerializer):
     job = serializers.PrimaryKeyRelatedField(queryset=Job.objects.all())
     freelancer = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(role='freelancer'))
-    company = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(role='company'))
+    company = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(role='company'), required=False)
 
     freelancer_details = serializers.SerializerMethodField()
     company_details = serializers.SerializerMethodField()
@@ -31,8 +31,15 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ['id', 'job','job_details', 'freelancer', 'freelancer_details', 'company', 'company_details', 'proposal', 'price', 'status', 'duration', 'createdAt','due_to']
-    
+        fields = [
+            'id', 'job', 'job_details', 'freelancer', 'freelancer_details', 
+            'company', 'company_details', 'proposal', 'price', 'status', 
+            'duration', 'createdAt', 'due_to'
+        ]
+
+    price = serializers.IntegerField(required=False)
+    duration = serializers.IntegerField(required=False)
+
     def get_freelancer_details(self, obj):
         freelancer = obj.freelancer
         return {
@@ -40,9 +47,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "name": freelancer.name,
             "email": freelancer.email,
             "role": freelancer.role,
-            "rating":freelancer.rating
+            "rating": freelancer.rating
         }
-    
+
     def get_company_details(self, obj):
         company = obj.company
         return {
@@ -51,6 +58,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "email": company.email,
             "role": company.role
         }
+
     def get_job_details(self, obj):
         job = obj.job
         return {
@@ -58,13 +66,13 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "title": job.title,
             "description": job.description,
             "level": job.level,
-            "workingMode":job.workingMode,
-            "price":job.price,
-            "isActive":job.isActive,
-            "createdAt":job.createdAt,
-            "location":job.location
+            "workingMode": job.workingMode,
+            "price": job.price,
+            "isActive": job.isActive,
+            "createdAt": job.createdAt,
+            "location": job.location
         }
-    
+
     def create(self, validated_data):
         job = validated_data.get('job')
         freelancer = validated_data.get('freelancer')
@@ -78,12 +86,13 @@ class ApplicationSerializer(serializers.ModelSerializer):
             freelancer=freelancer,
             company=company,
             proposal=validated_data.get('proposal'),
-            price=validated_data.get('price'),
-            duration=validated_data.get('duration'),
+            price=validated_data.get('price', 0),
+            duration=validated_data.get('duration', 0),
             status=validated_data.get('status', 'pending'),
             due_to=validated_data.get('due_to')
         )
         return application
+
 
 
 class DashboardSerializer(serializers.ModelSerializer):
