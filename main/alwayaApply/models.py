@@ -15,7 +15,7 @@ class Job(models.Model):
     level = models.CharField(max_length=200, choices=levelsEnum, default='ENTRY')
     workingMode = models.CharField(max_length=200, choices=workModeEnum, default='PART TIME')
     isActive = models.BooleanField()
-    # requirements = ArrayField(models.CharField(max_length=200),blank=True,default=list)
+    requirements = models.JSONField(default=list)
     createdAt = models.DateTimeField(auto_now_add=True)
     price=models.FloatField(default=2000.0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'company'})
@@ -26,7 +26,7 @@ class Job(models.Model):
 
 class Application(models.Model):
     
-    statusEnum = [('pending', 'PENDING'), ('accepted', 'ACCEPTED'), ('rejected', 'REJECTED')]
+    statusEnum = [('pending', 'PENDING'), ('accepted', 'ACCEPTED'), ('rejected', 'REJECTED'), ('completed', 'COMPLETED')]
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     freelancer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'freelancer'}, related_name='applications_as_freelancer')

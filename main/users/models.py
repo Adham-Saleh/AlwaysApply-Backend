@@ -33,8 +33,9 @@ class User(AbstractUser):
     password = models.CharField(max_length=255)
     username = None
     role = models.CharField(max_length=200, null=False, default='freelancer', choices=roleEnum)  # Default value set
-    image = models.ImageField(upload_to='UserImages/', blank=True, null=True, default=None)
+    image = models.FileField(upload_to='UserImages/', blank=True, null=True, default=None)
     rating=models.IntegerField(default=0)
+    reviews = models.JSONField(default=list)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

@@ -84,7 +84,7 @@ class UserView(APIView):
 
         # Serialize the user data
         serializer = UserSerializer(user)
-        return Response({'success': True, 'user': serializer.data})
+        return Response({'success': True, 'user': serializer.data, 'token': token})
 
 class LogoutView(APIView):
     def post(self, request):

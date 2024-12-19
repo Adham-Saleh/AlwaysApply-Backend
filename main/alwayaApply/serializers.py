@@ -8,7 +8,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'user', 'user_details', 'title', 'description', 'level', 'workingMode', 'isActive', 'createdAt', 'price', 'location']
+        fields = ['id', 'user', 'user_details', 'title', 'description', 'level', 'workingMode', 'isActive', 'createdAt', 'price', 'location', 'requirements']
         read_only_fields = ['user_details']
 
     def get_user_details(self, obj):
