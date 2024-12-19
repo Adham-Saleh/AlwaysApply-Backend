@@ -3,6 +3,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer
+from rest_framework import viewsets
 from .models import User
 import jwt, datetime
 from rest_framework.exceptions import ValidationError
@@ -61,7 +62,7 @@ class LoginView(APIView):
 
 class UserView(APIView):
 
-    def get(self, request):
+    def get(self, request, pk=None):
         # Get the JWT token from cookies
         token = request.headers.get('Authorization')
         
@@ -85,6 +86,27 @@ class UserView(APIView):
         # Serialize the user data
         serializer = UserSerializer(user)
         return Response({'success': True, 'user': serializer.data, 'token': token})
+    
+class userList(viewsets.ViewSet):
+    
+    def retrieve(self, request,  pk):
+        try:
+            user = User.objects.get(id=pk)
+            serializedData = UserSerializer(user)
+        except:
+            return Response({'success': False, 'message': 'User not found'})
+        return Response({'success': True, 'user': serializedData.data})
+    def put(self, request, pk):
+        try:
+            user = User.objects.get(id=pk)
+        except:
+            return Response({'success': False, 'message': 'User not found'})
+        print(request.data)
+        serializedData = UserSerializer(user, data=request.data, partial=True)
+        if serializedData.is_valid():
+            serializedData.save()
+            return Response({'success': True, 'user': serializedData.data})
+        return Response({'success': False, 'message': 'Could not update user'})
 
 class LogoutView(APIView):
     def post(self, request):
